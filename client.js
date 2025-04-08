@@ -4,9 +4,11 @@ const username = urlParams.get('username');
 const room = urlParams.get('room');
 
 // Function to display messages
-function displayMessage(message) {
+function displayMessage(message, saveToStorage = true) {
   const div = document.createElement('div');
   div.classList.add('message');
+  
+  // Use innerHTML to properly render the HTML
   div.innerHTML = message;
   document.getElementById('messages').appendChild(div);
   
@@ -14,14 +16,26 @@ function displayMessage(message) {
   const messagesContainer = document.getElementById('messages');
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
   
-  // Save message to local storage
-  saveMessageToStorage(message);
+  // Save message to local storage only if flag is true
+  if (saveToStorage) {
+    saveMessageToStorage(message);
+  }
 }
 
 // Function to save messages to local storage
 function saveMessageToStorage(message) {
   const roomKey = `messages-${room}`;
   let messages = JSON.parse(localStorage.getItem(roomKey) || '[]');
+  
+  // Don't save duplicate welcome messages
+  if (message.includes("Welcome to the room:")) {
+    // Check if we already have a welcome message in storage
+    const hasWelcomeMessage = messages.some(msg => msg.includes("Welcome to the room:"));
+    if (hasWelcomeMessage) {
+      return; // Skip saving this welcome message
+    }
+  }
+  
   messages.push(message);
   
   // Keep only the last 100 messages
@@ -37,7 +51,18 @@ function loadMessagesFromStorage() {
   const roomKey = `messages-${room}`;
   const messages = JSON.parse(localStorage.getItem(roomKey) || '[]');
   
+  // Flag to track if we've shown the welcome message
+  let hasWelcomeMessage = false;
+  
   messages.forEach(message => {
+    // If this is a welcome message and we've already shown one, skip it
+    if (message.includes("Welcome to the room:")) {
+      if (hasWelcomeMessage) {
+        return;
+      }
+      hasWelcomeMessage = true;
+    }
+    
     const div = document.createElement('div');
     div.classList.add('message');
     div.innerHTML = message;
@@ -58,7 +83,9 @@ if (username && room) {
 }
 
 socket.on('message', messageData => {
-  displayMessage(messageData);
+  // For welcome messages, don't save to storage again if it's for the current user
+  const isWelcomeMessage = messageData.includes("Welcome to the room:");
+  displayMessage(messageData, !isWelcomeMessage);
 });
 
 socket.on('roomUsers', users => {
