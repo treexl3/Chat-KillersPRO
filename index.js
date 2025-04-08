@@ -50,23 +50,27 @@ io.on('connection', socket => {
     socket.join(room);
     users[socket.id] = { username, room };
 
-    // Format system messages with timestamp
-    const systemMessage = `<div class="system-message">
-      <span class="time">[${formatTime()}]</span> 
-      <span class="text">${username} has joined the room.</span>
-    </div>`;
-
-    socket.to(room).emit('message', systemMessage);
-
     const welcomeMessage = `<div class="system-message">
       <span class="time">[${formatTime()}]</span> 
       <span class="text">Welcome to the room: ${room}</span>
     </div>`;
+    
+    socket.once("details", (({ }) => {
+      // Format system messages with timestamp
+      const systemMessage = `<div class="system-message">
+        <span class="time">[${formatTime()}]</span> 
+        <span class="text">${username} has joined the room.</span>
+      </div>`;
+
+      socket.to(room).emit('message', systemMessage);
+    }))
 
     socket.emit('message', welcomeMessage);
 
     io.to(room).emit('roomUsers', getUsersInRoom(room));
   });
+  socket.once("details", (({ username, room }) => {
+  }));
   socket.on('chatMessage', msg => {
     const user = users[socket.id];
     if (user) {
