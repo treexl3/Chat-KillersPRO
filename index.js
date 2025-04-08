@@ -43,31 +43,42 @@ app.get('/chat', (req, res) => {
 });
 
 const users = {};
-const chatMessages = document.getElementById('chat-messages');
+// Track connection status to prevent duplicate welcome messages
+const userSessions = {};
 
 io.on('connection', socket => {
-  socket.on('joinRoom', ({ username, room }) => {
+  socket.on('joinRoom', ({ username, room, isRejoining }) => {
     socket.join(room);
     users[socket.id] = { username, room };
+    
+    // If this is a new user (not rejoining), send join message
+    if (!isRejoining) {
+      const joinMessage = `<div class="system-message">
+        <span class="time">[${formatTime()}]</span> 
+        <span class="text">${username} has joined the room.</span>
+      </div>`;
+      
+      socket.to(room).emit('message', joinMessage);
+    }
 
-    const welcomeMessage = `<div class="system-message">
-      <span class="time">[${formatTime()}]</span> 
-      <span class="text">Welcome to the room: ${room}</span>
-    </div>`;
+    // If this is the first time we're seeing this user/room combo
+    // Send welcome message and tag it as a welcome message
+    const sessionKey = `${username}-${room}`;
+    if (!userSessions[sessionKey]) {
+      userSessions[sessionKey] = true;
+      
+      const welcomeMessage = `<div class="system-message welcome-message">
+        <span class="time">[${formatTime()}]</span> 
+        <span class="text">Welcome to the room: ${room}</span>
+      </div>`;
+      
+      socket.emit('message', welcomeMessage);
+    }
 
-    socket.emit('message', welcomeMessage);
-
+    // Update user list for everyone in the room
     io.to(room).emit('roomUsers', getUsersInRoom(room));
   });
-  socket.once("details", (({ }) => {
-    // Format system messages with timestamp
-    const systemMessage = `<div class="system-message">
-      <span class="time">[${formatTime()}]</span> 
-      <span class="text">${username} has joined the room.</span>
-    </div>`;
 
-    socket.to(room).emit('message', systemMessage);
-  }));
   socket.on('chatMessage', msg => {
     const user = users[socket.id];
     if (user) {
@@ -77,8 +88,7 @@ io.on('connection', socket => {
         <span class="username">${user.username}:</span> 
         <span class="text">${msg}</span>
       </div>`;
-
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
       io.to(user.room).emit('message', formattedMessage);
     }
   });
