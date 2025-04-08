@@ -31,10 +31,7 @@ function displayMessage(message) {
   const messagesContainer = document.getElementById('messages');
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-  // Don't save welcome messages to storage
-  if (!message.includes('welcome-message')) {
-    saveMessageToStorage(message);
-  }
+  saveMessageToStorage(message);
 }
 
 // Function to save messages to local storage
