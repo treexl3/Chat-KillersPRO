@@ -1,4 +1,4 @@
-const socket = io('https://829fb174-f9f6-4ee6-9042-89f12efe6cea-00-n3irp254sj1g.spock.replit.dev/');
+const socket = io('https://chat-killerspro.onrender.com');
 const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('username');
 const room = urlParams.get('room');
