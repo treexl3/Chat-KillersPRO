@@ -34,19 +34,20 @@ button {
 
 /* New styles for messages */
 .message {
-  margin-bottom: 12px;
   padding: 8px;
   border-radius: 5px;
   word-wrap: break-word;
 }
 
 .system-message {
+  padding: 4px;
   background-color: #f8f8f8;
   color: #666;
   font-style: italic;
 }
 
 .user-message {
+  padding: 4px;
   background-color: #e6f7ff;
 }
 
