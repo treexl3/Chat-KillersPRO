@@ -90,7 +90,7 @@ io.on('connection', socket => {
       </div>`;
 
       io.to(user.room).emit('message', leaveMessage);
-      delete users[socket.id];
+      userLeavesRoom(socket.id);
       io.to(user.room).emit('roomUsers', getUsersInRoom(user.room));
     }
   });

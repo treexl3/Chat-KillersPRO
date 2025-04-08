@@ -49,6 +49,27 @@ function loadMessagesFromStorage() {
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
+const hasJoinedRoomKey = `hasJoined-${room}`;
+
+if (username && room && !sessionStorage.getItem(hasJoinedRoomKey)) {
+  socket.emit('joinRoom', { username, room });
+  sessionStorage.setItem(hasJoinedRoomKey, 'true');
+  document.getElementById('room-name').innerText = `Room: ${room}`;
+
+  // Load existing messages
+  loadMessagesFromStorage();
+}
+
+if (!username || !room) {
+  // Try to retrieve from sessionStorage
+  username = sessionStorage.getItem('username');
+  room = sessionStorage.getItem('room');
+} else {
+  sessionStorage.setItem('username', username);
+  sessionStorage.setItem('room', room);
+}
+
+
 if (username && room) {
   socket.emit('joinRoom', { username, room });
   document.getElementById('room-name').innerText = `Room: ${room}`;
