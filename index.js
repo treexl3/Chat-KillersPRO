@@ -43,6 +43,7 @@ app.get('/chat', (req, res) => {
 });
 
 const users = {};
+const chatMessages = document.getElementById('chat-messages');
 
 io.on('connection', socket => {
   socket.on('joinRoom', ({ username, room }) => {
@@ -66,7 +67,21 @@ io.on('connection', socket => {
 
     io.to(room).emit('roomUsers', getUsersInRoom(room));
   });
+  socket.on('message', message => {
+    const isWelcomeMessage = message.includes('Welcome to the room');
 
+    if (isWelcomeMessage && document.querySelector('.welcome-message')) return;
+
+    const div = document.createElement('div');
+
+    if (isWelcomeMessage) {
+      div.classList.add('welcome-message');
+    }
+
+    div.innerHTML = message;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
   socket.on('chatMessage', msg => {
     const user = users[socket.id];
     if (user) {
