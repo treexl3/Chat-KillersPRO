@@ -3,25 +3,8 @@ const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('username');
 const room = urlParams.get('room');
 
-// Check if we're rejoining
-function isRejoining() {
-  const key = `chat-session-${username}-${room}`;
-  return localStorage.getItem(key) === 'true';
-}
-
-// Mark that we've joined this room
-function markAsJoined() {
-  const key = `chat-session-${username}-${room}`;
-  localStorage.setItem(key, 'true');
-}
-
 // Function to display messages
 function displayMessage(message) {
-  // Skip welcome messages on reload if class indicates it's a welcome message
-  if (message.includes('welcome-message') && isRejoining()) {
-    return;
-  }
-
   const div = document.createElement('div');
   div.classList.add('message');
   div.innerHTML = message;
@@ -31,6 +14,7 @@ function displayMessage(message) {
   const messagesContainer = document.getElementById('messages');
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
+  // Save message to local storage
   saveMessageToStorage(message);
 }
 
@@ -54,13 +38,10 @@ function loadMessagesFromStorage() {
   const messages = JSON.parse(localStorage.getItem(roomKey) || '[]');
 
   messages.forEach(message => {
-    // Skip welcome messages when loading from storage
-    if (!message.includes('welcome-message')) {
-      const div = document.createElement('div');
-      div.classList.add('message');
-      div.innerHTML = message;
-      document.getElementById('messages').appendChild(div);
-    }
+    const div = document.createElement('div');
+    div.classList.add('message');
+    div.innerHTML = message;
+    document.getElementById('messages').appendChild(div);
   });
 
   // Auto-scroll to bottom
@@ -69,15 +50,7 @@ function loadMessagesFromStorage() {
 }
 
 if (username && room) {
-  // Check if this is a rejoin
-  const rejoining = isRejoining();
-
-  // Connect to socket and join room
-  socket.emit('joinRoom', { username, room, isRejoining: rejoining });
-
-  // Mark as joined for future reference
-  markAsJoined();
-
+  socket.emit('joinRoom', { username, room });
   document.getElementById('room-name').innerText = `Room: ${room}`;
 
   // Load existing messages
@@ -96,11 +69,7 @@ socket.on('roomUsers', users => {
 document.getElementById('message-form').addEventListener('submit', e => {
   e.preventDefault();
   const msgInput = document.getElementById('msg');
-  const msg = msgInput.value.trim();
-
-  if (msg !== '') {
-    socket.emit('chatMessage', msg);
-    msgInput.value = '';
-    msgInput.focus();
-  }
+  const msg = msgInput.value;
+  socket.emit('chatMessage', msg);
+  msgInput.value = '';
 });
