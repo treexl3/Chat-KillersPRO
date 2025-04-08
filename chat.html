@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Chat Room</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="chat-container">
-    <header><h2 id="room-name">Chat Room</h2></header>
+    <header>
+      <h2 id="room-name">Chat Room</h2>
+    </header>
     <div id="user-list"></div>
     <div id="messages" class="messages"></div>
     <form id="message-form">
@@ -15,7 +19,9 @@
       <button type="submit">Send</button>
     </form>
   </div>
-  <script src="/socket.io/socket.io.js"></script>
+  <script
+    src="https://829fb174-f9f6-4ee6-9042-89f12efe6cea-00-n3irp254sj1g.spock.replit.dev/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
 </body>
+
 </html>
