@@ -31,3 +31,39 @@ body {
 button {
   padding: 10px;
 }
+
+/* New styles for messages */
+.message {
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 5px;
+  word-wrap: break-word;
+}
+
+.system-message {
+  background-color: #f8f8f8;
+  color: #666;
+  font-style: italic;
+}
+
+.user-message {
+  background-color: #e6f7ff;
+}
+
+.time {
+  color: #888;
+  font-size: 0.8em;
+  margin-right: 5px;
+}
+
+.username {
+  font-weight: bold;
+  color: #0066cc;
+}
+
+#user-list {
+  background-color: #f4f4f4;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
