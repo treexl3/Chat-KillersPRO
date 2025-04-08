@@ -79,7 +79,6 @@ header h2 {
 
 /* System messages */
 .system-message {
-  background: linear-gradient(to right, #444 60%, transparent);
   font-style: italic;
   color: #aaa;
 }
